@@ -13,12 +13,12 @@ KERNEL_OFFSET equ 0x1000
 
 boot:
 	; Set stack away from bootloader
-	mov bp, 0x8000 
+	mov bp, 0x8000
 	mov sp, bp
 
 	mov bx, 0x1000
 	mov dh, 16
-	
+
 	call disk_load
 
 	cli
@@ -32,7 +32,6 @@ boot:
 	mov cr0, eax
 	jmp CODE_SEG:init_pm
 
-	; Should never reach here, if you do, something fucked up	
 	jmp $
 
 [bits 32]
@@ -50,10 +49,6 @@ init_pm:
 	call BEGIN_PM
 
 BEGIN_PM:
-	mov eax, 0xb8000
-	mov [eax], byte "!"
-	mov [eax+1], byte 0x0f
-
 	call KERNEL_OFFSET
 	jmp $
 

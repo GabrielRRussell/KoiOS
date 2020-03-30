@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-uint8_t inb(uint8_t port);
-void outb(uint8_t port, uint8_t byte);
+uint8_t inb(int port);
+void outb(int port, uint8_t byte);
 
 #endif

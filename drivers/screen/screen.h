@@ -34,6 +34,7 @@ enum VGA_ATTRIBUTES {
   WHITE_ON_CYAN  = 0x3F
 };
 
+void kprint_at (char *string, uint8_t xPos, uint8_t yPos, uint8_t attr);
 void kput_char (char c, uint8_t x, uint8_t y, uint8_t attr);
 void kclear_screen(uint8_t attr);
 

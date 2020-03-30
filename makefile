@@ -1,18 +1,23 @@
-C_SOURCES = $(shell find . -name "*.c")
-HEADERS = $(shell find . -name "*.h")
+.PHONY: all clean run debug
+
+C_SOURCES := $(shell find . -name "*.c")
+HEADERS :=  $(shell find . -name "*.h")
 #C_SOURCES = $(wildcard kernel/*.c drivers/*.c drivers/keyboard/*.c drivers/cpu/*.c libc/*.c)
 #HEADERS = $(wildcard kernel/*.h drivers/*.h cpu/*.h libc/*.h)
 
 # Nice syntax for file extension replacement
-OBJ = $(shell find . -name "*.o")
-BIN = $(shell find . -name "*.bin")
-ELF = $(shell find . -name "*.elf")
+OBJ := $(patsubst %.c,%.o,$(C_SOURCES))
+ELF := $(shell find . -name "*.elf")
+BIN := $(shell find . -name "*.elf")
 
 # Change this if your cross-compiler is somewhere else
 CC = /usr/local/i386elfgcc/bin/i686-elf-gcc
 GDB = /usr/local/i386elfgcc/bin/i386-elf-gdb
 # -g: Use debugging symbols in gcc
-CFLAGS = -g -ffreestanding -mno-sse -mno-sse2 -mno-mmx -mno-80387
+CFLAGS = -g -ffreestanding -mno-sse -mno-sse2 -mno-mmx -mno-80387 -Wall -Wextra -pedantic -Wshadow -Wpointer-arith -Wcast-align \
+            -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations \
+            -Wredundant-decls -Wnested-externs -Winline -Wno-long-long \
+            -Wconversion -Wstrict-prototypes
 
 # First rule is run by default
 os-image.bin: boot/boot.bin kernel.bin
@@ -47,6 +52,6 @@ debug: os-image.bin kernel.elf
 	nasm $< -f bin -o $@
 
 clean:
-	rm -rf $BIN
-	rm -rf $ELF
-	rm -rf $OBJ
+	rm ${OBJ}
+	rm ${ELF}
+	rm ${BIN}
