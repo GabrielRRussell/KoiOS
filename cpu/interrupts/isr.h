@@ -1,6 +1,8 @@
 #ifndef ISR_H
 #define ISR_H
 
+#include <stdint.h>
+
 /*
   IDT ENTRY FORMAT
   caller_high = First 16 bits of function to be called when fired

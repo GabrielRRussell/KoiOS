@@ -6,7 +6,7 @@ HEADERS :=  $(shell find . -name "*.h")
 #HEADERS = $(wildcard kernel/*.h drivers/*.h cpu/*.h libc/*.h)
 
 # Nice syntax for file extension replacement
-OBJ := $(patsubst %.c,%.o,$(C_SOURCES))
+OBJ := $(patsubst %.c,%.o,$(C_SOURCES) cpu/interrupts/interrupts.o)
 OBJs := $(shell find . -name "*.o")
 ELF := $(shell find . -name "*.elf")
 BIN := $(shell find . -name "*.bin")
@@ -15,7 +15,7 @@ BIN := $(shell find . -name "*.bin")
 CC = /usr/local/i386elfgcc/bin/i686-elf-gcc
 GDB = /usr/local/i386elfgcc/bin/i386-elf-gdb
 # -g: Use debugging symbols in gcc
-CFLAGS = -g -ffreestanding -mno-sse -mno-sse2 -mno-mmx -mno-80387 -Wall -Wextra 
+CFLAGS = -g -ffreestanding -mno-sse -mno-sse2 -mno-mmx -mno-80387 -Wall -Wextra
 
 # First rule is run by default
 os-image.bin: boot/boot.bin kernel.bin

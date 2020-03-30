@@ -1,8 +1,6 @@
 global load_idt
 global isr_stub
 
-extern isr_stub
-
 isr_stub:
   iret
 

@@ -27,7 +27,7 @@ void idt_init(void) {
 
   // Create the pointer to our IDT
   unsigned long idt_ptr[2];
-  idt_address = (unsigned long) IDT;
+  unsigned long idt_address = (unsigned long) IDT;
   idt_ptr[0] = (sizeof (struct idt_entry) * 256) + ((idt_address & 0xFFFF) << 16);
   idt_ptr[1] = idt_address >> 16;
   // Install the IDT
