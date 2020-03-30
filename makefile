@@ -15,10 +15,7 @@ BIN := $(shell find . -name "*.bin")
 CC = /usr/local/i386elfgcc/bin/i686-elf-gcc
 GDB = /usr/local/i386elfgcc/bin/i386-elf-gdb
 # -g: Use debugging symbols in gcc
-CFLAGS = -g -ffreestanding -mno-sse -mno-sse2 -mno-mmx -mno-80387 -Wall -Wextra -pedantic -Wshadow -Wpointer-arith -Wcast-align \
-            -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations \
-            -Wredundant-decls -Wnested-externs -Winline -Wno-long-long \
-            -Wconversion -Wstrict-prototypes
+CFLAGS = -g -ffreestanding -mno-sse -mno-sse2 -mno-mmx -mno-80387 -Wall -Wextra 
 
 # First rule is run by default
 os-image.bin: boot/boot.bin kernel.bin

@@ -2,8 +2,9 @@
 #include "../../cpu/ports.h"
 
 // SOFTWARE CURSORS
-volatile int x;
-volatile int y;
+uint8_t x;
+uint8_t y;
+uint8_t default_attribute = WHITE_ON_CYAN;
 
 /*
   Private Declarations
@@ -17,6 +18,16 @@ void set_software_cursor(int newX, int newY);
 */
 
 /*
+  KERNEL PRINT FILE
+  STRING = STRING TO PRINT
+
+  Prints String at current cursor, with Default Attribute Byte
+*/
+void kprintf(char *string) {
+  kprint_at(string, x, y, default_attribute);
+}
+
+/*
   KERNEL PRINT AT
   STRING = STRING TO PRINT
   XPOS = COLUMN
@@ -26,11 +37,22 @@ void set_software_cursor(int newX, int newY);
   Prints string at X/Y, with Attribute Byte placed on each character
 */
 void kprint_at(char *string, uint8_t xPos, uint8_t yPos, uint8_t attr) {
-  int i;
+  int i = 0;
   set_software_cursor(xPos, yPos);
 
+  if (x > VGA_WIDTH) {
+    x = 0;
+    y++;
+  }
+
   while (string[i] != 0) {
-    kput_char(string[i], x, y, attr);
+
+    if (string[i] == '\n') {
+      x=0;
+      y++;
+    } else kput_char(string[i], x, y, attr);
+
+    i++;
   }
 
   set_hardware_cursor(x, y);
@@ -48,20 +70,30 @@ void kprint_at(char *string, uint8_t xPos, uint8_t yPos, uint8_t attr) {
 void kput_char(char c, uint8_t xPos, uint8_t yPos, uint8_t attr) {
   // Determine Offset from X/Y Given
   int offset = getByteOffset(xPos, yPos);
+
   unsigned char *vidmem = (unsigned char*) VIDEO_MEMORY;
   // Place c/attr at offset, drawing character
   vidmem[offset]   = (unsigned char) c;
   vidmem[offset+1] = attr;
+
+  xPos++;
+  if (xPos > VGA_WIDTH) {
+    xPos = 0;
+    yPos += 1;
+  }
+
+  set_software_cursor(xPos, yPos);
+
 }
 
 /*
   KERNEL CLEAR SCREEN
   ATTR = ATTRIBUTE BYTE
 
-  Clears Screen with given background color,
+  Clears Screen with default attribute byte,
   replaces all characters with ' '
 */
-void kclear_screen(uint8_t attr) {
+void kclear_screen() {
 
   int maximum = VGA_HEIGHT * VGA_WIDTH;
   unsigned char *vidmem = (unsigned char*) VIDEO_MEMORY;
@@ -70,12 +102,16 @@ void kclear_screen(uint8_t attr) {
   // replace with ' ' and background color
   for (int i = 0; i < maximum; i++) {
       vidmem[i*2]   = ' ';
-      vidmem[i*2+1] = attr;
+      vidmem[i*2+1] = default_attribute;
   }
 
   set_software_cursor(0, 0);
   set_hardware_cursor(0, 0);
 
+}
+
+void kchange_attribute(uint8_t attr) {
+  default_attribute = attr;
 }
 
 /*
@@ -88,7 +124,7 @@ void kclear_screen(uint8_t attr) {
   from start of Video Memory 0xB8000
 */
 int getByteOffset(uint8_t xPos, uint8_t yPos) {
-  return (xPos + (yPos * VGA_WIDTH) * 2);
+  return (2 * (yPos * VGA_WIDTH + xPos));
 }
 
 /*
