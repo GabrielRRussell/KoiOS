@@ -4,7 +4,9 @@ HEADERS = $(shell find . -name "*.h")
 #HEADERS = $(wildcard kernel/*.h drivers/*.h cpu/*.h libc/*.h)
 
 # Nice syntax for file extension replacement
-OBJ = ${C_SOURCES:.c=.o}
+OBJ = $(shell find . -name "*.o")
+BIN = $(shell find . -name "*.bin")
+ELF = $(shell find . -name "*.elf")
 
 # Change this if your cross-compiler is somewhere else
 CC = /usr/local/i386elfgcc/bin/i686-elf-gcc
@@ -45,6 +47,6 @@ debug: os-image.bin kernel.elf
 	nasm $< -f bin -o $@
 
 clean:
-	echo ${C_SOURCES}
-	rm -rf *.bin *.dis *.o os-image.bin *.elf
-	rm -rf kernel/*.o boot/*.bin drivers/*.o drivers/keyboard/*.o boot/*.o cpu/*.o libc/*.o
+	rm -rf $BIN
+	rm -rf $ELF
+	rm -rf $OBJ
