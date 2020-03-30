@@ -7,8 +7,9 @@ HEADERS :=  $(shell find . -name "*.h")
 
 # Nice syntax for file extension replacement
 OBJ := $(patsubst %.c,%.o,$(C_SOURCES))
+OBJs := $(shell find . -name "*.o")
 ELF := $(shell find . -name "*.elf")
-BIN := $(shell find . -name "*.elf")
+BIN := $(shell find . -name "*.bin")
 
 # Change this if your cross-compiler is somewhere else
 CC = /usr/local/i386elfgcc/bin/i686-elf-gcc
@@ -52,6 +53,6 @@ debug: os-image.bin kernel.elf
 	nasm $< -f bin -o $@
 
 clean:
-	rm ${OBJ}
-	rm ${ELF}
-	rm ${BIN}
+	rm -rf ${OBJs}
+	rm -rf ${ELF}
+	rm -rf ${BIN}
