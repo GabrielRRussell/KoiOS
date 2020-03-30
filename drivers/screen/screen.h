@@ -1,7 +1,9 @@
 #ifndef SCREEN_H
 #define SCREEN_H
 
-#define VIDEO_MEMORY 0xb80000
+#include <stdint.h>
+
+#define VIDEO_MEMORY 0xb8000
 #define VGA_WIDTH 80
 #define VGA_HEIGHT 25
 #define VGA_BLINK_MASK 128

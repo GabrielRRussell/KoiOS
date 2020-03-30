@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #include "../cpu/ports.h"
 #include "../drivers/screen/screen.h"
 

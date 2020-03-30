@@ -1,4 +1,4 @@
-#include "keyboard.h"
+/* #include "keyboard.h"
 #include "../../cpu/types.h"
 #include "../ports.h"
 #include "../screen.h"
@@ -62,3 +62,4 @@ void send_keyboard_encoder_command(unsigned char command) {
 char translate_scancode(unsigned char scancode) {
   return scancode_ascii[scancode];
 }
+*/

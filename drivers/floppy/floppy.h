@@ -1,3 +1,4 @@
+/*
 #ifndef FLOPPY_H
 #define FLOPPY_H
 
@@ -33,3 +34,4 @@ enum FloppyMasks {
 void lba_chs(unsigned long lba, unsigned int* cyl, unsigned int* head, unsigned int* sector);
 
 #endif
+*/

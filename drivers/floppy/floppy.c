@@ -1,8 +1,9 @@
+/*
 #include "floppy.h"
 #include "../ports.h"
 #include "../../cpu/idt.h"
 #include "../../cpu/timer.h"
-/*
+
 int floppy_irq_fired = 0;
 
 void lba_chs (unsigned long lba, unsigned int* cyl, unsigned int* head, unsigned int* sector) {
