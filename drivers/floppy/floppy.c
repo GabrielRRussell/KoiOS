@@ -1,57 +1,42 @@
-/*
+#include <stdint.h>
+#include "../../cpu/interrupts/isr.h"
+#include "../../cpu/timer/timer.h"
 #include "floppy.h"
-#include "../ports.h"
-#include "../../cpu/idt.h"
-#include "../../cpu/timer.h"
 
 int floppy_irq_fired = 0;
 
-void lba_chs (unsigned long lba, unsigned int* cyl, unsigned int* head, unsigned int* sector) {
-  *cyl = (lba / SECTORS_PER_TRACK) / HEADS_PER_DISK);
-  *head = (lba / SECTORS_PER_TRACK) % HEADS_PER_DISK);
-  *sector = (lba % SECTORS_PER_TRACK) + 1;
+/*
+1 Turn on the drive's motor and select the drive, using an "outb" command to the DOR IO port.
+2 Wait for awhile for the motor to get up to speed, using some waiting scheme.
+3 Issue your command byte plus some parameter bytes (the "command phase") to the FIFO IO port.
+4 Exchange data with the drive / "seek" the drive heads (the "execution phase"), on the FIFO IO port.
+5 Get an IRQ6 at the end of the execution phase, but only if the command HAS an execution phase.
+6 Read any "result bytes" produced by the command (the "result phase"), on the FIFO IO port.
+7 The commands "Recalibrate", "Seek", and "Seek Relative" do not have a result phase, and require an additional "Sense Interrupt" command to be sent.
+*/
+
+void floppy_install(void) {
+  install_isr((unsigned long) floppy_handler, 38);
+
+  send_dor_command(MASK_RESET);
+  sleep(1);
+
+  send_dor_command(MASK_MOTA);
+  sleep(3);
+
+
 }
 
 struct interrupt_frame;
-
-__attribute__((interrupt)) void floppy_irq_callback (struct interrupt_frame *frame) {
+__attribute__((interrupt)) void floppy_handler(struct interrupt_frame *frame) {
   floppy_irq_fired = 1;
-  port_byte_out(0x20, 0x20);
+  outb(0x20, 0x20);
 }
 
-void floppy_disk_wait() {
-  while (floppy_irq_fired == 0);
-  floppy_irq_fired = 0;
+void send_dor_command(uint8_t mask) {
+  outb(DIGITAL_OUTPUT_REGISTER, mask);
 }
 
-void floppy_init() {
-  set_handler(38, (u32) floppy_irq_callback);
-
-  port_byte_out(0x0A, 0x06); // Mask DMA Channel 2
-  port_byte_out(0xD8, 0xFF); // Reset Master FF
-  port_byte_out(0x04, 0x00); // Address = 0x7E00, Second Byte
-  port_byte_out(0x04, 0x7E); // Address First Byte
-  port_byte_out(0xD8, 0xFF); // Reset Master FF
-  port_byte_out(0x05, 0xFF); // Count to 0x23ff (Number of Bytes in a 3.5 Floppy Disk Track) Second Byte
-  port_byte_out(0x05, 0x23); // First Byte
-  port_byte_out(0x80, 0x00); // External Page Register = 0
-  port_byte_out(0x0A, 0x02); // Unmask DMA Channel 2
-
+void wait_floppy_irq() {
+  while (floppy_irq_fired != 1);
 }
-
-void floppy_read() {
-  port_byte_out(0x0A, 0x06);
-  port_byte_out(0x0B, 0x56);
-  port_byte_out(0x0A, 0x02);
-}
-
-void floppy_write() {
-  port_byte_out(0x0A, 0x06);
-  port_byte_out(0x0B, 0x5A);
-  port_byte_out(0x0A, 0x02);
-}
-
-void floppy_write_dor(char val) {
-  port_byte_out(DIGITAL_OUTPUT_REGISTER, val);
-}
-*/
