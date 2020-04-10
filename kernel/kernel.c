@@ -13,6 +13,18 @@ char *logo4 = " | . \\ (_) | | | |__| |____) |\n";
 char *logo5 = " |_|\\_\\___/|_|  \\____/|_____/ \n";
 char *logo6 = "                              \n";
 
+static const char * drive_types[8] = {
+    "none",
+    "360kB 5.25",
+    "1.2MB 5.25",
+    "720kB 3.5",
+
+    "1.44MB 3.5",
+    "2.88MB 3.5",
+    "unknown type",
+    "unknown type"
+};
+
 void kmain(void) {
   kclear_screen(WHITE_ON_CYAN);
   idt_init();
@@ -27,6 +39,12 @@ void kmain(void) {
   kprint_at(logo5, 0, 5, WHITE_ON_CYAN);
   kprint_at(logo6, 0, 6, WHITE_ON_CYAN);
 
-  msleep(500);
-  kprintf("\n\nHello World! Welcome to KoiOS");
+  kprintf("\n\n");
+  kprintf("FLOPPY TYPES:\n");
+
+  outb(0x70, 0x10);
+  unsigned int drives = inb(0x71);
+  kprintf(drive_types[drives >> 4]);
+  kprintf("\n");
+  kprintf(drive_types[drives & 0xf]);
 }
