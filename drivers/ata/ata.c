@@ -27,7 +27,7 @@ void ata_send_command(uint16_t command) {
   asm volatile("sti");
 }
 
-void ata_read_sector(uint32_t lba, uint8_t sectors, unsigned char *buf) {
+void ata_read_sector(uint32_t lba, uint8_t sectors, char *buf) {
   outw(DRIVE_HEAD_REGISTER, (uint16_t) (lba >> 24 | 244) );
   outb(SECTOR_COUNT_REGISTER, sectors);
   outb(LBA_LO_REGISTER, (uint8_t) lba & 0x000000FF);

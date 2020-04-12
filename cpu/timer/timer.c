@@ -7,6 +7,7 @@ uint32_t tick = 0;
 
 struct interrupt_frame;
 __attribute__((interrupt)) void timer_handler(struct interrupt_frame *frame) {
+  (void) frame;
   tick++;
   outb(0x20, 0x20);
 }

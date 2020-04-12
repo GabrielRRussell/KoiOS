@@ -1,6 +1,9 @@
 #ifndef ATA_H
 #define ATA_H
 
+void ata_send_command(uint16_t command);
+void ata_read_sector(uint32_t lba, uint8_t sectors, char *buf);
+
 // http://lateblt.tripod.com/atapi.htm
 enum IDE_REGISTERS {
   DATA_REGISTER = 0x1F0,
