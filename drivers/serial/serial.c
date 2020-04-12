@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include "serial.h"
+#include "../../cpu/ports.h"
 
 void serial_init(uint16_t port) {
   outb(port + 1, 0x00);
@@ -16,15 +17,15 @@ uint8_t receive_ready(uint16_t port) {
 }
 
 uint8_t transmit_ready(uint16_t port) {
-  return inb(port + 5) & 0x20);
+  return inb(port + 5) & 0x20;
 }
 
 uint8_t read_serial(uint16_t port) {
-  while (receive_ready() == 0);
+  while (receive_ready(port) == 0);
   return inb(port);
 }
 
 void write_serial(uint16_t port, uint8_t data) {
-  while (transmit_ready() == 0);
+  while (transmit_ready(port) == 0);
   outb(port, data);
 }

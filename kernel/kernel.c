@@ -3,6 +3,7 @@
 #include "../cpu/ports.h"
 #include "../cpu/interrupts/isr.h"
 #include "../cpu/timer/timer.h"
+#include "../drivers/serial/serial.h"
 #include "../drivers/screen/screen.h"
 #include "../drivers/ata/ata.h"
 
@@ -18,7 +19,10 @@ char *dump = (char*) 0xFFFF;
 
 void kmain(void) {
   kclear_screen(WHITE_ON_CYAN);
+
+  // Init Services
   idt_init();
+  serial_init(COM1);
   init_timer(FREQUENCY);
 
   sleep(2);
@@ -33,7 +37,7 @@ void kmain(void) {
   ata_read_sector(0, 1, dump);
 
   for (int i = 0; i < 512; i++) {
-
+    write_serial(COM1, dump[i]);
   }
 
 }

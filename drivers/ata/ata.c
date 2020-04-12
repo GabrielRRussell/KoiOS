@@ -11,7 +11,7 @@ void ata_busy_poll(void) {
 }
 
 void ata_device_ready_poll(void) {
-  while (inb(STATUS_REGISTER) & DEVICE_READY_MASK == 0);
+  while ((inb(STATUS_REGISTER) & DEVICE_READY_MASK) == 0);
   return;
 }
 
@@ -35,7 +35,7 @@ void ata_read_sector(uint32_t lba, uint8_t sectors, char *buf) {
   outb(LBA_HI_REGISTER, (uint8_t) (lba & 0x00FF0000 >> 16));
   ata_send_command(READ_SECTORS_WITH_RETRY);
 
-  while (inb(STATUS_REGISTER) & DATA_TRANSFER_REQUESTED_MASK == 8);
+  while ((inb(STATUS_REGISTER) & DATA_TRANSFER_REQUESTED_MASK) == 8);
   for (int i = 0; i < sectors * 512; i++) {
     buf[i] = inb(DATA_REGISTER);
   }
