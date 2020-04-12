@@ -14,7 +14,7 @@ char *logo4 = " | . \\ (_) | | | |__| |____) |\n";
 char *logo5 = " |_|\\_\\___/|_|  \\____/|_____/ \n";
 char *logo6 = "                              \n";
 
-uchar *dump = (char*) 0x10000;
+char *dump = (char*) 0xFFFF;
 
 void kmain(void) {
   kclear_screen(WHITE_ON_CYAN);
@@ -31,6 +31,9 @@ void kmain(void) {
   kprint_at(logo6, 0, 6, WHITE_ON_CYAN);
 
   ata_read_sector(0, 1, dump);
-  kprintf(dump);
+
+  for (int i = 0; i < 512; i++) {
+
+  }
 
 }
