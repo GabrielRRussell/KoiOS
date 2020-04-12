@@ -15,7 +15,7 @@ char *logo4 = " | . \\ (_) | | | |__| |____) |\n";
 char *logo5 = " |_|\\_\\___/|_|  \\____/|_____/ \n";
 char *logo6 = "                              \n";
 
-char *dump = (char*) 0xFFFF;
+uint16_t *dump = (uint16_t*) 0xFFFF;
 
 void kmain(void) {
   kclear_screen(WHITE_ON_CYAN);
@@ -39,5 +39,7 @@ void kmain(void) {
   for (int i = 0; i < 512; i++) {
     write_serial(COM1, dump[i]);
   }
+
+  kprintf("Done.");
 
 }

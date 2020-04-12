@@ -2,7 +2,7 @@
 #define ATA_H
 
 void ata_send_command(uint16_t command);
-void ata_read_sector(uint32_t lba, uint8_t sectors, char *buf);
+void ata_read_sector(uint32_t lba, uint8_t sectors, uint16_t *buf);
 
 // http://lateblt.tripod.com/atapi.htm
 enum IDE_REGISTERS {
