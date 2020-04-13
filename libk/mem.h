@@ -1,10 +1,6 @@
 #ifndef MEM_H
 #define MEM_H
 
-void memcpy(char *src, char *dst, int bytes) {
-  for (int i; i < bytes; i++) {
-    dst[i] = src[i];
-  }
-}
+void memcpy(uint8_t *src, uint8_t *dst, int bytes);
 
 #endif

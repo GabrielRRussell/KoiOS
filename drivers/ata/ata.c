@@ -27,8 +27,6 @@ void ata_pio_read_loop(uint16_t *buf) {
       ata_busy_poll();
       ata_drq_poll();
       data = inw(DATA_REGISTER);
-      write_serial(COM1, (uint8_t) data);
-      write_serial(COM1, (uint8_t) (data >> 8));
       buf[i] = data;
     }
 
