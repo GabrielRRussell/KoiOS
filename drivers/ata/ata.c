@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include "ata.h"
 #include "../../cpu/ports.h"
+#include "../serial/serial.h"
 
 void ata_busy_poll(void);
 void ata_device_ready_poll(void);
@@ -21,10 +22,14 @@ void ata_device_ready_poll(void) {
 }
 
 void ata_pio_read_loop(uint16_t *buf) {
+    uint16_t data;
     for (int i = 0; i < 256; i++) {
       ata_busy_poll();
       ata_drq_poll();
-      buf[i] = inw(DATA_REGISTER);
+      data = inw(DATA_REGISTER);
+      write_serial(COM1, (uint8_t) data);
+      write_serial(COM1, (uint8_t) (data >> 8));
+      buf[i] = data;
     }
 
     for (int i = 0; i < 5; i++) inb(ALTERNATE_STATUS_REGISTER);
@@ -51,7 +56,7 @@ void ata_read_sector(uint32_t lba, uint8_t sectors, uint16_t *buf) {
   outb(COMMAND_REGISTER, READ_SECTORS_WITH_RETRY);
 
   for (int i = 0; i < sectors; i++) {
-    ata_pio_read_loop((i * 512) + buf);
+    ata_pio_read_loop( (uint16_t) (i * 512) + buf);
   }
 
   return;

@@ -6,6 +6,8 @@
 
 jmp boot
 
+db "KOI OS BOOT DRIVE", 0
+
 %include "boot/gdt.asm"
 %include "boot/disk.asm"
 

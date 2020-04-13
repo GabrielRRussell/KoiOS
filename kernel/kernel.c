@@ -34,12 +34,19 @@ void kmain(void) {
   kprint_at(logo5, 0, 5, WHITE_ON_CYAN);
   kprint_at(logo6, 0, 6, WHITE_ON_CYAN);
 
-  ata_read_sector(0, 1, dump);
-
-  for (int i = 0; i < 512; i++) {
-    write_serial(COM1, dump[i]);
+  if (inb(STATUS_REGISTER) == 0xFF) {
+    kprintf("HALT, FLOATING BUS DETECTED");
+    asm volatile("cli");
+    asm volatile("hlt");
   }
+
+  ata_read_sector(0, 2, dump);
 
   kprintf("Done.");
 
+}
+
+void gdb_interrupt() {
+  kprintf("GDB INTERRUPT");
+  return;
 }
