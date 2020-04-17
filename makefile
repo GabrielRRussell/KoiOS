@@ -17,6 +17,8 @@ GDB = /usr/local/i386elfgcc/bin/i386-elf-gdb
 # -g: Use debugging symbols in gcc
 CFLAGS = -g -ffreestanding -mno-sse -mno-sse2 -mno-mmx -mno-80387 -Wall -Wextra
 
+
+
 # First rule is run by default
 os-image.bin: boot/boot.bin kernel.bin
 	cat $^ > os-image.bin; \
