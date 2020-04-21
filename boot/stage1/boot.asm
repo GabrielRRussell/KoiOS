@@ -47,9 +47,9 @@ ENTRY_OFFSET equ 0x0803
 
 ;-------------------------------------------------------------------------------
 ; Includes
-%include "gdt.asm"
-%include "disk.asm"
-%include "string.asm"
+%include "stage1/gdt.asm"
+%include "stage1/disk.asm"
+%include "stage1/string.asm"
 ;-------------------------------------------------------------------------------
 boot:
 	; Set stack away from bootloader
