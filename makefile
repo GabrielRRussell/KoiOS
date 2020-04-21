@@ -17,8 +17,6 @@ GDB = /usr/local/i386elfgcc/bin/i386-elf-gdb
 # -g: Use debugging symbols in gcc
 CFLAGS = -g -ffreestanding -mno-sse -mno-sse2 -mno-mmx -mno-80387 -Wall -Wextra
 
-
-
 # First rule is run by default
 os-image.bin: boot/boot.bin kernel.bin
 	cat $^ > os-image.bin; \
@@ -34,7 +32,7 @@ kernel.elf: boot/kernel_entry.o ${OBJ}
 	i386-elf-ld -o $@ -Ttext 0x1000 $^
 
 run: os-image.bin
-	qemu-system-i386 -fda os-image.bin
+	qemu-system-i386 -hda os-image.bin
 
 # Open the connection to qemu and load our kernel-object file with symbols
 debug: os-image.bin kernel.elf

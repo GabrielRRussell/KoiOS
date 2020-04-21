@@ -6,7 +6,6 @@ void idt_init(void) {
   extern int load_idt();
   extern int isr_stub();
 
-
   // Remap the PIC
   outb(0x20, 0x11);
   outb(0xA0, 0x11);
