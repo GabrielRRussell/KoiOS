@@ -2,7 +2,8 @@
 #define MANAGER_H
 #include <stdint.h>
 
-uintptr_t malloc(uint8_t blocks);
-
+void init_memory_manager();
+uintptr_t malloc();
+void free(uintptr_t pointer);
 
 #endif

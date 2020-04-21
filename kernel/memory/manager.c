@@ -1,4 +1,10 @@
+#include <stddef.h>
 #include "manager.h"
+
+// Private Prototypes
+uintptr_t returnPointerFromBlock(uint32_t block);
+uint32_t returnBlockFromPointer(uintptr_t pointer);
+
 
 uint8_t blockMap[0x20000]; //THIS IS OUR MEMORY MAP
 /*
@@ -22,7 +28,7 @@ void init_memory_manager() {
 }
 
 
-uintptr_t malloc(uint8_t blocks) {
+uintptr_t malloc(void) {
   /*
     We keep track of the current status of the block we read
     The offset is the uint8_t index of our blockMap[]
@@ -30,25 +36,73 @@ uintptr_t malloc(uint8_t blocks) {
     So we can get a block by doing (Offset * 8) + Bit
     Then return the block as a pointer
   */
-  uint8_t currentBlockSet = 0;
+  uint32_t currentBlockSet = 1;
   uint8_t currentBit = 0;
   uint32_t currentOffset = 0;
 
-  while (currentBlockSet == 0) {
+  while (currentBlockSet == 1) {
     currentOffset++;
+    // Iterate through each bit in the byte
+    for (currentBit = 1; currentBit < 129; currentBit *= 2) {
+      currentBlockSet = (blockMap[currentOffset] & currentBit);
+      if (!currentBlockSet) break;
+    }
+  }
 
-    for (currentBit; currentBit < 8; currentBit++) {
-      currentBlockSet = (blockMap[currentOffset] >> currentBit) & 1;
-      if (currentBlockSet) break;
+  // If we went through the entire memory map, and didn't find a free block,
+  // then just return NULL
+  if (currentBlockSet == 0) {
+    // We use the currentBit value to AND above, here we convert it
+    // to a position to use when setting the memory map we return
+    switch (currentBit) {
+      case 1:
+        currentBit = 0;
+        break;
+      case 2:
+        currentBit = 1;
+        break;
+      case 4:
+        currentBit = 2;
+        break;
+      case 8:
+        currentBit = 3;
+        break;
+      case 16:
+        currentBit = 4;
+        break;
+      case 32:
+        currentBit = 5;
+        break;
+      case 64:
+        currentBit = 6;
+        break;
+      case 128:
+        currentBit = 7;
+        break;
     }
 
+    currentOffset *= 8;
+    currentOffset += currentBit;
+    return returnPointerFromBlock(currentOffset);
+  } else {
+    return NULL;
   }
-  currentOffset *= 8;
-  currentOffset += currentBit;
-  return returnPointerFromBlock(currentOffset);
+}
 
+void free(uintptr_t pointer) {
+  uint32_t block = returnBlockFromPointer(pointer);
+  uint8_t bit = block % 8;
+  block = block - bit;
+  blockMap[block] = blockMap[block] & ~(1 << bit);
+  return;
 }
 
 uintptr_t returnPointerFromBlock(uint32_t block) {
   return (uintptr_t) (block * 4096);
+}
+
+uint32_t returnBlockFromPointer(uintptr_t pointer) {
+  return (uint32_t) pointer / 4096;
+  // uint8_t bit = block % 8;
+  // Do this conversion when you get the value back
 }
