@@ -1,7 +1,7 @@
 .PHONY: all clean run debug
 
-C_SOURCES = $(wildcard kernel/*.c cpu/interrupts/*.c cpu/timer/*.c cpu/*.c drivers/ata/*.c drivers/keyboard/*.c drivers/screen/*.c drivers/serial/*.c libk/mem/*.c)
-HEADERS = $(wildcard kernel/*.h cpu/interrupts/*.h cpu/timer/*.h cpu/*.h drivers/ata/*.h drivers/keyboard/*.h drivers/screen/*.h drivers/serial/*.h libk/mem/*.h)
+C_SOURCES = $(wildcard kernel/*.c kernel/memory/*.c cpu/interrupts/*.c cpu/timer/*.c cpu/*.c drivers/ata/*.c drivers/keyboard/*.c drivers/screen/*.c drivers/serial/*.c libk/mem/*.c)
+HEADERS = $(wildcard kernel/*.h kernel/memory/*.h cpu/interrupts/*.h cpu/timer/*.h cpu/*.h drivers/ata/*.h drivers/keyboard/*.h drivers/screen/*.h drivers/serial/*.h libk/mem/*.h)
 
 # Nice syntax for file extension replacement
 OBJ := $(patsubst %.c,%.o,$(C_SOURCES) cpu/interrupts/interrupts.o)
@@ -33,7 +33,7 @@ kernel.elf: kernel/kernel_entry.o ${OBJ}
 	i386-elf-ld -o $@ -Ttext 0x1000 $^
 
 run: koiOS.img
-	qemu-system-i386 -hda koiOS.img
+	qemu-system-i386 -hda koiOS.img -serial file:serial.log
 
 # Open the connection to qemu and load our kernel-object file with symbols
 debug: os-image.bin kernel.elf
