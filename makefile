@@ -1,9 +1,7 @@
 .PHONY: all clean run debug
 
-C_SOURCES := $(shell find . -name "*.c")
-HEADERS :=  $(shell find . -name "*.h")
-#C_SOURCES = $(wildcard kernel/*.c drivers/*.c drivers/keyboard/*.c drivers/cpu/*.c libc/*.c)
-#HEADERS = $(wildcard kernel/*.h drivers/*.h cpu/*.h libc/*.h)
+C_SOURCES = $(wildcard kernel/*.c cpu/interrupts/*.c cpu/timer/*.c cpu/*.c drivers/ata/*.c drivers/keyboard/*.c drivers/screen/*.c drivers/serial/*.c libk/mem/*.c)
+HEADERS = $(wildcard kernel/*.h cpu/interrupts/*.h cpu/timer/*.h cpu/*.h drivers/ata/*.h drivers/keyboard/*.h drivers/screen/*.h drivers/serial/*.h libk/mem/*.h)
 
 # Nice syntax for file extension replacement
 OBJ := $(patsubst %.c,%.o,$(C_SOURCES) cpu/interrupts/interrupts.o)
@@ -18,21 +16,24 @@ GDB = /usr/local/i386elfgcc/bin/i386-elf-gdb
 CFLAGS = -g -ffreestanding -mno-sse -mno-sse2 -mno-mmx -mno-80387 -Wall -Wextra
 
 # First rule is run by default
-os-image.bin: boot/boot.bin kernel.bin
-	cat $^ > os-image.bin; \
-	truncate -s +1M os-image.bin
+koiOS.img: boot/koiOS.img kernel.bin
+	mv boot/koiOS.img koiOS.img; \
+	mcopy -i koiOS.img kernel.bin ::/
+
+boot/koiOS.img:
+	$(MAKE) -C boot
 
 # '--oformat binary' deletes all symbols as a collateral, so we don't need
 # to 'strip' them manually on this case
-kernel.bin: boot/kernel_entry.o ${OBJ}
+kernel.bin: kernel/kernel_entry.o ${OBJ}
 	i386-elf-ld -o $@ -Ttext 0x1000 $^ --oformat binary
 
 # Used for debugging purposes
-kernel.elf: boot/kernel_entry.o ${OBJ}
+kernel.elf: kernel/kernel_entry.o ${OBJ}
 	i386-elf-ld -o $@ -Ttext 0x1000 $^
 
-run: os-image.bin
-	qemu-system-i386 -hda os-image.bin
+run: koiOS.img
+	qemu-system-i386 -hda koiOS.img
 
 # Open the connection to qemu and load our kernel-object file with symbols
 debug: os-image.bin kernel.elf
