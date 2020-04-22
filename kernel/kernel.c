@@ -1,5 +1,5 @@
 #include <stdint.h>
-
+#include "memory/manager.h"
 #include "../cpu/ports.h"
 #include "../cpu/interrupts/isr.h"
 #include "../cpu/timer/timer.h"
@@ -17,6 +17,11 @@ char *logo6 = "                              \n";
 
 uint16_t *dump = (uint16_t*) 0xFFFF;
 
+void gdb_interrupt() {
+  kprintf("GDB INTERRUPT");
+  return;
+}
+
 void kmain(void) {
   kclear_screen(WHITE_ON_CYAN);
 
@@ -24,7 +29,9 @@ void kmain(void) {
   idt_init();
   serial_init(COM1);
   init_timer(FREQUENCY);
+  init_memory_manager();
 
+  /*
   sleep(2);
   kprint_at(logo0, 0, 0, WHITE_ON_CYAN);
   kprint_at(logo1, 0, 1, WHITE_ON_CYAN);
@@ -33,20 +40,28 @@ void kmain(void) {
   kprint_at(logo4, 0, 4, WHITE_ON_CYAN);
   kprint_at(logo5, 0, 5, WHITE_ON_CYAN);
   kprint_at(logo6, 0, 6, WHITE_ON_CYAN);
-
+  */
   if (inb(STATUS_REGISTER) == 0xFF) {
     kprintf("HALT, FLOATING BUS DETECTED");
     asm volatile("cli");
     asm volatile("hlt");
   }
 
-  ata_read_sector(0, 2, dump);
+  write_serial(COM1, '1');
 
-  kprintf("Done.");
+  write_serial(COM1, '2');
 
-}
+  write_serial(COM1, '3');
 
-void gdb_interrupt() {
-  kprintf("GDB INTERRUPT");
-  return;
+  write_serial(COM1, '4');
+
+  uintptr_t block1 = malloc();
+  uintptr_t block2 = malloc();
+
+  // BLOCK2 == BLOCK3
+  free(block2);
+  uintptr_t block3 = malloc();
+
+  uintptr_t block4 = malloc();
+
 }

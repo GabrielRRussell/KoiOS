@@ -36,8 +36,8 @@ run: koiOS.img
 	qemu-system-i386 -hda koiOS.img -serial file:serial.log
 
 # Open the connection to qemu and load our kernel-object file with symbols
-debug: os-image.bin kernel.elf
-	qemu-system-i386 -s -hda os-image.bin -S -serial file:serial.log &
+debug: koiOS.img kernel.elf
+	qemu-system-i386 -s -hda koiOS.img -S -serial file:serial.log &
 	gdb -ex "target remote localhost:1234" -ex "symbol-file kernel.elf"
 
 # Generic rules for wildcards

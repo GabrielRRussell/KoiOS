@@ -6,7 +6,8 @@ uintptr_t returnPointerFromBlock(uint32_t block);
 uint32_t returnBlockFromPointer(uintptr_t pointer);
 
 
-uint8_t blockMap[0x20000]; //THIS IS OUR MEMORY MAP
+uint8_t blockMap[131072]; //THIS IS OUR MEMORY MAP
+                              //
 /*
   One bit is equal to 4KB set.
   Meaning if the bit is set, that 4KB is unavailable
@@ -18,17 +19,19 @@ uint8_t blockMap[0x20000]; //THIS IS OUR MEMORY MAP
 */
 void init_memory_manager() {
   /*
-    Reserve the first 40960 or 0xA000 bytes for our Operating System by default
+    We reserve the first 32 blocks by default
     Kernel Loaded to  0x1000
     Stack set     to  0x8000
   */
-  for (int i = 0; i < 10; i++) {
-    blockMap[i] = (blockMap[i] & 0xFF);
+  for (int i = 0; i < 4; i++) {
+    blockMap[i] = 255;
   }
 }
 
 
 uintptr_t malloc(void) {
+  // TODO: Allow to reserve multiple blocks at once
+
   /*
     We keep track of the current status of the block we read
     The offset is the uint8_t index of our blockMap[]
@@ -38,61 +41,41 @@ uintptr_t malloc(void) {
   */
   uint32_t currentBlockSet = 1;
   uint8_t currentBit = 0;
-  uint32_t currentOffset = 0;
+  uint32_t currentOffset = 4;
+  // We set the offset to 4 since we reserved the first few blocks for our OS.
+  // This cuts down considerably on search time.
 
-  while (currentBlockSet == 1) {
+
+  // Right now this will infinitely search, until we find a free block.
+  // TODO: add a timeout
+
+  // We want to search for a block not set
+  while (currentBlockSet) {
     currentOffset++;
     // Iterate through each bit in the byte
-    for (currentBit = 1; currentBit < 129; currentBit *= 2) {
-      currentBlockSet = (blockMap[currentOffset] & currentBit);
-      if (!currentBlockSet) break;
+    for (currentBit = 0; currentBit < 8; currentBit++) {
+      // Read the current bit, break if it's not set
+      currentBlockSet = (blockMap[currentOffset] & (1 << currentBit));
+      if (currentBlockSet == 0) {
+        // Set the block and break
+        blockMap[currentOffset] |= (1 << currentBit);
+        break;
+
+      }
     }
   }
 
-  // If we went through the entire memory map, and didn't find a free block,
-  // then just return NULL
-  if (currentBlockSet == 0) {
-    // We use the currentBit value to AND above, here we convert it
-    // to a position to use when setting the memory map we return
-    switch (currentBit) {
-      case 1:
-        currentBit = 0;
-        break;
-      case 2:
-        currentBit = 1;
-        break;
-      case 4:
-        currentBit = 2;
-        break;
-      case 8:
-        currentBit = 3;
-        break;
-      case 16:
-        currentBit = 4;
-        break;
-      case 32:
-        currentBit = 5;
-        break;
-      case 64:
-        currentBit = 6;
-        break;
-      case 128:
-        currentBit = 7;
-        break;
-    }
-
-    currentOffset *= 8;
-    currentOffset += currentBit;
-    return returnPointerFromBlock(currentOffset);
-  } else {
-    return NULL;
-  }
+  // Return the block address
+  // (offset*8 + bit) * 4096
+  currentOffset *= 8;
+  currentOffset += currentBit;
+  return returnPointerFromBlock(currentOffset);
 }
 
 void free(uintptr_t pointer) {
   uint32_t block = returnBlockFromPointer(pointer);
   uint8_t bit = block % 8;
-  block = block - bit;
+  block -= bit;
   blockMap[block] = blockMap[block] & ~(1 << bit);
   return;
 }
