@@ -1,10 +1,14 @@
 #include <stdint.h>
+
 #include "../cpu/ports.h"
 #include "../cpu/interrupts/isr.h"
 #include "../cpu/timer/timer.h"
+
 #include "../drivers/serial/serial.h"
 #include "../drivers/screen/screen.h"
 #include "../drivers/ata/ata.h"
+
+#include "../libk/string/string.h"
 
 char *logo0 = "  _  __     _    ____   _____ \n";
 char *logo1 = " | |/ /    (_)  / __ \\ / ____|\n";
@@ -14,6 +18,10 @@ char *logo4 = " | . \\ (_) | | | |__| |____) |\n";
 char *logo5 = " |_|\\_\\___/|_|  \\____/|_____/ \n";
 char *logo6 = "                              \n";
 
+char *compare1 = "Hello World!";
+char *compare2 = "Hello World!";
+char *compare3 = "Hello Wurld!";
+
 void kmain(void) {
   kclear_screen(WHITE_ON_CYAN);
 
@@ -22,6 +30,20 @@ void kmain(void) {
   serial_init(COM1);
   init_timer(FREQUENCY);
 
+  // All strings are the same length anyways
+  uint32_t cmpStrLen = strLen(compare1);
+
+  if (cmpStr(compare1, compare2, cmpStrLen)) {
+    kprintf("True");
+  } else {
+    kprintf("False");
+  }
+
+  if (cmpStr(compare1, compare3, cmpStrLen)) {
+    kprintf("True");
+  } else {
+    kprintf("False");
+  }
 
   /*
   sleep(2);
