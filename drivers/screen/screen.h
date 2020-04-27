@@ -31,7 +31,9 @@ enum VGA_ATTRIBUTES {
   WHITE_ON_BLACK = 0x0F,
   BLACK_ON_WHITE = 0xF0,
   RED_ON_WHITE   = 0xF4,
+  RED_ON_CYAN    = 0x34,
   WHITE_ON_CYAN  = 0x3F
+
 };
 
 void kprintf(char *string);

@@ -13,8 +13,17 @@ uint8_t cmpStr (char *src1, char *src2, uint32_t bytes) {
   return 1;
 }
 
-uint32_t strLen(char *str) {
-  uint32_t i = 0;
+int strLen(char *str) {
+  int i = 0;
   while (str[i] != 0) i++;
-  return i + 1;
+  return i;
+}
+
+void reverseStr(char str[]) {
+  int c, i, j;
+  for (i = 0, j = strLen(str) - 1; i < j; i++, j--) {
+    c = str[i];
+    str[i] = str[j];
+    str[j] = c;
+  }
 }

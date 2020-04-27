@@ -18,10 +18,6 @@ char *logo4 = " | . \\ (_) | | | |__| |____) |\n";
 char *logo5 = " |_|\\_\\___/|_|  \\____/|_____/ \n";
 char *logo6 = "                              \n";
 
-char *compare1 = "Hello World!";
-char *compare2 = "Hello World!";
-char *compare3 = "Hello Wurld!";
-
 void kmain(void) {
   kclear_screen(WHITE_ON_CYAN);
 
@@ -29,21 +25,6 @@ void kmain(void) {
   idt_init();
   serial_init(COM1);
   init_timer(FREQUENCY);
-
-  // All strings are the same length anyways
-  uint32_t cmpStrLen = strLen(compare1);
-
-  if (cmpStr(compare1, compare2, cmpStrLen)) {
-    kprintf("True");
-  } else {
-    kprintf("False");
-  }
-
-  if (cmpStr(compare1, compare3, cmpStrLen)) {
-    kprintf("True");
-  } else {
-    kprintf("False");
-  }
 
   /*
   sleep(2);
@@ -56,4 +37,12 @@ void kmain(void) {
   kprint_at(logo6, 0, 6, WHITE_ON_CYAN);
   */
 
+}
+
+void PANIC(char *str) {
+  kchange_attribute(RED_ON_CYAN);
+  kprintf("KERNEL_PANIC\n\n");
+  kprintf(str);
+  asm volatile ("cli");
+  asm volatile ("hlt");
 }
