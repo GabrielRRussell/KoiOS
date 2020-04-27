@@ -1,5 +1,7 @@
 #include <stdint.h>
 
+#include "kernel.h"
+
 #include "../cpu/ports.h"
 #include "../cpu/interrupts/isr.h"
 #include "../cpu/timer/timer.h"
