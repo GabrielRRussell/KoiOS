@@ -27,3 +27,25 @@ void reverseStr(char str[]) {
     str[j] = c;
   }
 }
+
+void intToStr(char str[], unsigned int n) {
+  // Keep in mind that a 32bit number can only reach 10 characters long
+
+  int remainder;
+
+  // Find the length of our string.
+  int len;
+  int m = n;
+  while (m != 0) {
+    m /= 10;
+    len++;
+  }
+
+  for (int i = 0; i < len; i++) {
+      remainder = n % 10;
+      n = n / 10;
+      str[len - (i + 1)] = remainder + '0';
+  }
+  str[len] = 0;
+
+}

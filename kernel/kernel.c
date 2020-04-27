@@ -37,6 +37,8 @@ void kmain(void) {
   kprint_at(logo6, 0, 6, WHITE_ON_CYAN);
   */
 
+  PANIC("0: Kernel has ended execution");
+
 }
 
 void PANIC(char *str) {
