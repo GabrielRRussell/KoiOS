@@ -1,6 +1,7 @@
 #include <stdint.h>
 
 #include "kernel.h"
+#include "memory/memory.h"
 
 #include "../cpu/ports.h"
 #include "../cpu/interrupts/isr.h"

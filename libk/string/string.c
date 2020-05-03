@@ -30,10 +30,10 @@ void reverseStr(char str[]) {
 
 void intToStr(char str[], unsigned int n) {
   // Keep in mind that a 32bit number can only reach 10 characters long
-  int remainder;
+  int remainder = 0;
 
   // Find the length of our string.
-  int len;
+  int len = 0;
   int m = n;
   while (m != 0) {
     m /= 10;
