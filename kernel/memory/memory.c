@@ -11,7 +11,7 @@ void* kmalloc_f(uint32_t bytes, uint8_t align) {
 
   uint32_t tmp = mPtr;
   mPtr += bytes;
-  return tmp;
+  return (void*) tmp;
 
 }
 

@@ -33,7 +33,7 @@ void ata_pio_read_loop(uint16_t *buf) {
     for (int i = 0; i < 5; i++) inb(ALTERNATE_STATUS_REGISTER);
 }
 
-void ata_read_sector(uint32_t lba, uint8_t sectors, uint16_t *buf) {
+void ata_read_sector(uint32_t lba, uint8_t sectors, void* buf) {
   /*
     This bit is complicated.
     Send to the drive-head-register, 0xE0 for master, then set the last 4 bits

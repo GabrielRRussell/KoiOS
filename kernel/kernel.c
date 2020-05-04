@@ -10,6 +10,7 @@
 #include "../drivers/serial/serial.h"
 #include "../drivers/screen/screen.h"
 #include "../drivers/ata/ata.h"
+#include "../drivers/fs/fat32/fat32.h"
 
 #include "../libk/string/string.h"
 
@@ -29,8 +30,6 @@ void kmain(void) {
   serial_init(COM1);
   init_timer(FREQUENCY);
 
-  /*
-  sleep(2);
   kprint_at(logo0, 0, 0, WHITE_ON_CYAN);
   kprint_at(logo1, 0, 1, WHITE_ON_CYAN);
   kprint_at(logo2, 0, 2, WHITE_ON_CYAN);
@@ -38,7 +37,9 @@ void kmain(void) {
   kprint_at(logo4, 0, 4, WHITE_ON_CYAN);
   kprint_at(logo5, 0, 5, WHITE_ON_CYAN);
   kprint_at(logo6, 0, 6, WHITE_ON_CYAN);
-  */
+  kprintf("\n\n");
+
+  load_FAT32(0);
 
   PANIC("0: Kernel has ended execution");
 
