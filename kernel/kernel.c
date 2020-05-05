@@ -39,7 +39,11 @@ void kmain(void) {
   kprint_at(logo6, 0, 6, WHITE_ON_CYAN);
   kprintf("\n\n");
 
-  load_FAT32(0);
+  char buf[10];
+  uint32_t loc = find_file_entry("TEST    ", "TXT", 0);
+  intToStr(buf, loc);
+  kprintf(buf);
+  kprintf("\n\n");
 
   PANIC("0: Kernel has ended execution");
 

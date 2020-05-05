@@ -34,7 +34,7 @@ typedef struct BPB_t {
   uint8_t  EBPB_SYSTEM_IDENTIFIER[8];
 }  __attribute__((packed)) BPB_t;
 
-struct DirectoryEntry {
+typedef struct DirectoryEntry_t {
 	char name[8];
 	char ext[3];
 	uint8_t attrib;
@@ -45,14 +45,30 @@ struct DirectoryEntry {
 	uint16_t createdate;
 	uint16_t accessdate;
 	uint16_t clusterhigh;
-
-	uint16_t modifiedtime;
+  uint16_t modifiedtime;
 	uint16_t modifieddate;
 	uint16_t clusterlow;
 	uint32_t filesize;
 
-} __attribute__ ((packed));
+} __attribute__ ((packed)) DirectoryEntry_t;
 
-void load_FAT32(uint32_t lba);
+typedef struct FAT32_attribute_t {
+  uint8_t readOnly : 1;
+  uint8_t hidden   : 1;
+  uint8_t system   : 1;
+  uint8_t volume_id: 1;
+  uint8_t directory: 1;
+  uint8_t archive  : 1;
+  uint8_t unused   : 2;
+} __attribute__ ((packed)) FAT32_attribute_t;
+
+enum ENTRY_TYPES {
+  NO_MORE_ENTRIES_IN_DIRECTORY  = 0,
+  ENTRY_UNUSED                  = 1,
+  LONG_FILE_NAME                = 2,
+  ERROR                         = 0xFF
+};
+
+uint32_t find_file_entry(char name[8], char ext[3], uint32_t bootSector);
 
 #endif
