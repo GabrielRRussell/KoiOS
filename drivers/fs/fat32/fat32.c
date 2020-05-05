@@ -22,12 +22,13 @@ uint32_t find_file_entry(char name[8], char ext[3], uint32_t bootSector) {
   DirectoryEntry_t *entryBuffer = kmalloc(512);
   ata_read_sector(first_data_sector, 1, entryBuffer);
 
-    for (int i = 0; i < 512 / 32; i++) {
-      uint8_t a = cmpStr(name, entryBuffer[i].name, 8);
-      uint8_t b = cmpStr(ext, entryBuffer[i].ext, 3);
-      if (a && b) { return (first_data_sector * 512) + (i * 32); }
-    }
-
+  for (uint32_t i = 0; i < fat_size / 2; i++) {
+      for (int i = 0; i < 512 / 32; i++) {
+        uint8_t a = cmpStr(name, entryBuffer[i].name, 8);
+        uint8_t b = cmpStr(ext, entryBuffer[i].ext, 3);
+        if (a && b) { return (first_data_sector * 512) + (i * 32); }
+      }
+  }
   return 0xFFFFFFFF;
 
 }
@@ -39,7 +40,7 @@ uint32_t get_sector_from_cluster(uint32_t cluster, uint32_t sectors_per_cluster,
 uint8_t parse_entry(DirectoryEntry_t *entry) {
   if (entry->name[0] == 0) {
     return NO_MORE_ENTRIES_IN_DIRECTORY;
-  } else if (entry->name[0] == 0xE5) {
+  } else if (entry->name[0] == 0xE5) { // THIS IS BUGGED, DON'T TRUST IT
     return ENTRY_UNUSED;
   }
 
