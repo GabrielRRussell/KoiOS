@@ -66,6 +66,7 @@ enum ENTRY_TYPES {
   NO_MORE_ENTRIES_IN_DIRECTORY  = 0,
   ENTRY_UNUSED                  = 1,
   LONG_FILE_NAME                = 2,
+  REGULAR_FILE                  = 3,
   ERROR                         = 0xFF
 };
 
