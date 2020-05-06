@@ -18,7 +18,8 @@ CFLAGS = -g -ffreestanding -mno-sse -mno-sse2 -mno-mmx -mno-80387 -Wall -Wextra
 # First rule is run by default
 koiOS.img: boot/koiOS.img kernel.bin
 	mv boot/koiOS.img koiOS.img; \
-	mcopy -i koiOS.img kernel.bin ::/
+	mcopy -i koiOS.img kernel.bin ::/; \
+	mcopy -i koiOS.img test.txt ::/
 
 boot/koiOS.img:
 	$(MAKE) -C boot

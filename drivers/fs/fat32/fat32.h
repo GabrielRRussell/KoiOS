@@ -67,9 +67,9 @@ enum ENTRY_TYPES {
   ENTRY_UNUSED                  = 1,
   LONG_FILE_NAME                = 2,
   REGULAR_FILE                  = 3,
-  ERROR                         = 0xFF
+  FILE_ERROR                         = 0xFF
 };
 
 uint32_t find_file_entry(char name[8], char ext[3], uint32_t bootSector);
-
+void* load_file_from_cluster(uint32_t entryAddress, uint32_t fat_lba);
 #endif

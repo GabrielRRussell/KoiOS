@@ -38,12 +38,12 @@ void kmain(void) {
   kprint_at(logo5, 0, 5, WHITE_ON_CYAN);
   kprint_at(logo6, 0, 6, WHITE_ON_CYAN);
   kprintf("\n\n");
+  asm volatile("cli");
 
-  char buf[10];
-  uint32_t loc = find_file_entry("TEST    ", "TXT", 0);
-  intToStr(buf, loc);
-  kprintf(buf);
-  kprintf("\n\n");
+  char* file = load_file_from_cluster(0x100420, 32);
+  for (int i = 0; i < 1024; i++) {
+    write_serial(COM1, file[i]);
+  }
 
   PANIC("0: Kernel has ended execution");
 

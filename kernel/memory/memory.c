@@ -23,3 +23,9 @@ void* kmalloc_align(uint32_t bytes) {
   // KB Align
   return kmalloc_f(bytes, 1);
 }
+
+// THESE ARE TO BE USED IN A STACK LIKE CONTEXT
+// So kfree memory in the opposite order you allocated it.
+void kfree(uint32_t bytes) {
+  mPtr -= bytes;
+}
