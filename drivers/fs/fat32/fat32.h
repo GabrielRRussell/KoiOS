@@ -35,8 +35,7 @@ typedef struct BPB_t {
 }  __attribute__((packed)) BPB_t;
 
 typedef struct DirectoryEntry_t {
-	char name[8];
-	char ext[3];
+	char name[11];
 	uint8_t attrib;
 	uint8_t userattrib;
 
@@ -52,24 +51,31 @@ typedef struct DirectoryEntry_t {
 
 } __attribute__ ((packed)) DirectoryEntry_t;
 
-typedef struct FAT32_attribute_t {
-  uint8_t readOnly : 1;
-  uint8_t hidden   : 1;
-  uint8_t system   : 1;
-  uint8_t volume_id: 1;
-  uint8_t directory: 1;
-  uint8_t archive  : 1;
-  uint8_t unused   : 2;
-} __attribute__ ((packed)) FAT32_attribute_t;
+typedef union FAT32_attribute_t {
+  struct {
+    uint8_t readOnly : 1;
+    uint8_t hidden   : 1;
+    uint8_t system   : 1;
+    uint8_t volume_id: 1;
+    uint8_t directory: 1;
+    uint8_t archive  : 1;
+    uint8_t unused   : 2;
+  } __attribute__ ((packed));
+  uint8_t attribute_byte;
+} FAT32_attribute_t;
 
 enum ENTRY_TYPES {
   NO_MORE_ENTRIES_IN_DIRECTORY  = 0,
   ENTRY_UNUSED                  = 1,
   LONG_FILE_NAME                = 2,
-  REGULAR_FILE                  = 3,
-  FILE_ERROR                         = 0xFF
+  REGULAR_FILE                  = 4,
+  DIRECTORY                     = 8,
+  FILE_ERROR                    = 0xFF
 };
 
-uint32_t find_file_entry(char name[8], char ext[3], uint32_t bootSector);
-void* load_file_from_cluster(uint32_t entryAddress, uint32_t fat_lba);
+uint32_t get_cluster_size_of_entry(uint32_t cluster, uint32_t *fat);
+void* load_fat(uint32_t bootsector);
+uint32_t find_entry(char name[11], uint32_t dir_cluster, uint32_t *fat);
+void* load_entry(uint32_t entryAddress, uint32_t *fat);
+uint8_t  parse_entry(DirectoryEntry_t *entry);
 #endif

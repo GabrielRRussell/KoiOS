@@ -4,46 +4,66 @@
 #include "../../screen/screen.h"
 #include "../../serial/serial.h"
 
+#include "../../../cpu/timer/timer.h"
+
 #include "../../../libk/string/string.h"
 
 #include "../../../kernel/memory/memory.h"
 
 uint32_t get_sector_from_cluster(uint32_t cluster, uint32_t sectors_per_cluster);
-uint8_t  parse_entry(DirectoryEntry_t *entry);
+
+// This Function Returns the Address of the FAT
+/*
+  While it might seem self explanatory that the bootsector is sector 0,
+  This is future proofing for if we ever decide to add partitioning support.
+  In a partition, the bpb won't be at lba 0, unless we are the first partition.
+*/
+void* load_fat(uint32_t bootsector) {
+  // Load our BPB
+  BPB_t *boot = kmalloc(512);
+  ata_read_sector(bootsector, 1, boot);
+
+  // Reserve space for the FAT
+  uint32_t *fat = kmalloc((boot->EBPB_SECTORS_PER_FAT*512));
+  // Load the FAT
+  ata_read_sector(boot->BPB_RESERVED_SECTORS, boot->EBPB_SECTORS_PER_FAT, fat);
+  return fat;
+}
 
 // Returns the Disk Address of the File Entry when found
-uint32_t find_file_entry(char name[8], char ext[3], uint32_t bootSector) {
-  // Get all of our BPB Info Necessary to find the first sectors
-  BPB_t *bpb = kmalloc(512);
-  ata_read_sector(bootSector, 1, bpb);
+uint32_t find_entry(char name[11], uint32_t dir_cluster, uint32_t *fat) {
 
-  uint32_t reserved_sectors = bpb->BPB_RESERVED_SECTORS;
-  uint32_t fat_size = bpb->EBPB_SECTORS_PER_FAT * bpb->BPB_NUMBER_OF_FATS;
-  uint32_t first_data_sector = reserved_sectors + fat_size;
-
-  // Now we know where our first cluster is, so we allocate a block for it
   DirectoryEntry_t *entryBuffer = kmalloc(512);
-  ata_read_sector(first_data_sector, 1, entryBuffer);
 
+  while (dir_cluster < 0x0FFFFFF8) {
+    uint32_t currentSector = get_sector_from_cluster(dir_cluster, 1);
+    ata_read_sector(currentSector, 1, entryBuffer);
+    dir_cluster = fat[dir_cluster];
 
-  for (uint32_t i = 0; i < fat_size / 2; i++) {
-      // Iterate through 16 entries, SectorSize / 32byte entries
-      //TODO: FIX THIS
-      for (int i = 0; i < 512 / 32; i++) {
-        // Compare the Strings
-        uint8_t a = cmpStr(name, entryBuffer[i].name, 8);
-        uint8_t b = cmpStr(ext, entryBuffer[i].ext, 3);
-        // If they match, return the disk address of the entry
-        if (a && b) {
-          kfree(1024); // Free the memory we used
-          return (first_data_sector * 512) + (i * 32);
-        }
+    for (int i = 0; i < 512 / 32; i++) {
+      // Compare the String
+      uint8_t a = cmpStr(name, entryBuffer[i].name, 11);
+      // If they match, return the disk address of the entry
+      if (a) {
+        kfree(1024); // Free the memory we used
+        return (currentSector * 512) + (i * 32);
       }
+    }
   }
   // Return an invalid address if we can't find it.
   kfree(1024);
   return 0xFFFFFFFF;
+}
 
+// This function returns the size of an entry given its starting cluster by
+// Following the Cluster Chain until it reaches the end
+uint32_t get_cluster_size_of_entry(uint32_t cluster, uint32_t *fat) {
+  uint32_t clusterCount = 1;
+  while (cluster < 0x0FFFFFF8) {
+    clusterCount += 1;
+    cluster = fat[cluster];
+  }
+  return clusterCount;
 }
 
 // Gets the sector number from a cluster
@@ -51,26 +71,25 @@ uint32_t get_sector_from_cluster(uint32_t cluster, uint32_t sectors_per_cluster)
   return ((cluster - 2) * sectors_per_cluster) + 2050;
 }
 
-// Determine if the entry is Unused, Long_File, or Regular, or if Dir is Empty
+// Determine if the entry is Unused, Long_File, or Regular, or Dir, Empty Dir
 uint8_t parse_entry(DirectoryEntry_t *entry) {
+  // Return End of Directory, or Unused Entry
   if ((unsigned char) entry->name[0] == 0) {
     return NO_MORE_ENTRIES_IN_DIRECTORY;
   } else if ((unsigned char) entry->name[0] == 0xE5) {
     return ENTRY_UNUSED;
   }
+  // We'll need to check each of these individually
 
-  if (entry->attrib == 0x0F) {
-    return LONG_FILE_NAME;
-  }
+  if (entry->attrib == 0x0F) return LONG_FILE_NAME;
+  if (entry->attrib & 16) return DIRECTORY;
 
   return REGULAR_FILE;
 }
 
-
-/*
-  yo wtf why does this work
-*/
-void* load_file_from_cluster (uint32_t entryAddress, uint32_t fat_lba) {
+// Returns the address of the File.
+// TODO: Change this to a file_t
+void* load_entry (uint32_t entryAddress, uint32_t* fat) {
 
   uint32_t sector = entryAddress / 512; // Sector Number
   uint8_t offset = (entryAddress % 512) / 32; // Entry Number
@@ -91,18 +110,14 @@ void* load_file_from_cluster (uint32_t entryAddress, uint32_t fat_lba) {
 
   uint32_t fileSectorOffset = 0;
   uint32_t fileSector = 0;
-  uint32_t* FileTable = kmalloc(512 * 8);
   uint8_t* fileBuffer = kmalloc(bytesToAllocate);
-  ata_read_sector(fat_lba, 8, FileTable);
 
-  char *intBuf = kmalloc(11);
-
-  do {
+  while (cluster < 0x0FFFFFF8) {
     fileSector = get_sector_from_cluster(cluster, 1);
     ata_read_sector(fileSector, 1, fileBuffer + (fileSectorOffset*512));
-    cluster = FileTable[cluster];
+    cluster = fat[cluster];
     fileSectorOffset++;
-  } while (cluster < 0x0FFFFFF8);
+  }
 
   return (void*) fileBuffer;
 

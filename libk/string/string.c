@@ -28,27 +28,27 @@ void reverseStr(char str[]) {
   }
 }
 
-void intToStr(char str[], unsigned int n) {
-  // Keep in mind that a 32bit number can only reach 10 characters long
-  int remainder = 0;
+char int_to_char(int num) {
+    if (num >= 0 && num <= 9)
+        return (char)(num + '0');
+    else
+        return (char)(num - 10 + 'A');
+}
 
-  // Find the length of our string.
-  int len = 0;
-  int m = n;
-  while (m != 0) {
-    m /= 10;
-    len++;
+// Unsigned Int of base 2-16
+void intToStr(char str[], unsigned int n, uint8_t base) {
+
+  int i = 0;
+
+  while (n > 0) {
+    str[i++] = int_to_char(n % base);
+    n /= base;
   }
+  str[i] = 0;
 
-  // Iterate through each digit, write it out
-  for (int i = 0; i < len; i++) {
-      remainder = n % 10;
-      n = n / 10;
-      str[len - (i + 1)] = remainder + '0';
-  }
-  // Terminate the string
-  str[len] = 0;
+  reverseStr(str);
 
+  return;
 }
 
 // DON'T USE WITHOUT ALLOCATING MORE SPACE OR YOU'LL MESS UP CODE

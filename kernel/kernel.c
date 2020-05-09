@@ -23,6 +23,7 @@ char *logo5 = " |_|\\_\\___/|_|  \\____/|_____/ \n";
 char *logo6 = "                              \n";
 
 void kmain(void) {
+
   kclear_screen(WHITE_ON_CYAN);
 
   // Init Services
@@ -38,12 +39,9 @@ void kmain(void) {
   kprint_at(logo5, 0, 5, WHITE_ON_CYAN);
   kprint_at(logo6, 0, 6, WHITE_ON_CYAN);
   kprintf("\n\n");
-  asm volatile("cli");
 
-  char* file = load_file_from_cluster(0x100420, 32);
-  for (int i = 0; i < 1024; i++) {
-    write_serial(COM1, file[i]);
-  }
+  kprintf("Loading FAT\n");
+  uint32_t *fat = load_fat(0);
 
   PANIC("0: Kernel has ended execution");
 
